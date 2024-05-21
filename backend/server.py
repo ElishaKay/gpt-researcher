@@ -7,7 +7,7 @@ from backend.utils import write_md_to_pdf, write_md_to_word, write_text_to_md
 import time
 import json
 import os
-
+import shutil
 
 class ResearchRequest(BaseModel):
     task: str
