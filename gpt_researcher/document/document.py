@@ -21,9 +21,11 @@ class DocumentLoader:
         tasks = []
         for root, dirs, files in os.walk(self.path):
             for file in files:
+                print(f"Processing file: {file}")  # Debugging line
                 file_path = os.path.join(root, file)
                 file_name, file_extension_with_dot = os.path.splitext(file_path)
                 file_extension = file_extension_with_dot.strip(".")
+                print(f"Processing file: {file_path} with extension: {file_extension}")  # Debugging line
                 tasks.append(self._load_document(file_path, file_extension))
 
         docs = []
@@ -56,10 +58,14 @@ class DocumentLoader:
 
             loader = loader_dict.get(file_extension, None)
             if loader:
+                print(f"Using loader: {loader.__class__.__name__} for file: {file_path}")  # Debugging line
                 data = loader.load()
                 return data
+            else:
+                print(f"No loader found for file extension: {file_extension}")  # Debugging line
+                return []
 
         except Exception as e:
-            print(f"Failed to load document : {file_path}")
-            print(e)
+            print(f"Failed to load document: {file_path}")  # Debugging line
+            print(e)  # Debugging line
             return []
