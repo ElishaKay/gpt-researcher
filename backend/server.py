@@ -16,7 +16,6 @@ class ResearchRequest(BaseModel):
     report_type: str
     agent: str
 
-
 app = FastAPI()
 
 app.mount("/site", StaticFiles(directory="./frontend"), name="site")
@@ -25,7 +24,6 @@ app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
 templates = Jinja2Templates(directory="./frontend")
 
 manager = WebSocketManager()
-
 
 # Dynamic directory for outputs once first research is run
 @app.on_event("startup")
@@ -37,7 +35,6 @@ def startup_event():
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse('index.html', {"request": request, "report": None})
-
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -62,7 +59,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"type": "path", "output": {"pdf": pdf_path, "docx": docx_path, "md": md_path}})
                 else:
                     print("Error: not enough parameters provided.")
-
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 
@@ -85,11 +81,13 @@ async def upload_file(file: UploadFile = File(...)):
     file_path = os.path.join(DOC_PATH, file.filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+    print(f"File uploaded to {file_path}")
     return {"filename": file.filename, "path": file_path}
 
 @app.get("/files/")
 async def list_files():
     files = os.listdir(DOC_PATH)
+    print(f"Files in {DOC_PATH}: {files}")
     return {"files": files}
 
 @app.delete("/files/{filename}")
@@ -97,6 +95,8 @@ async def delete_file(filename: str):
     file_path = os.path.join(DOC_PATH, filename)
     if os.path.exists(file_path):
         os.remove(file_path)
+        print(f"File deleted: {file_path}")
         return {"message": "File deleted successfully"}
     else:
+        print(f"File not found: {file_path}")
         return JSONResponse(status_code=404, content={"message": "File not found"})
