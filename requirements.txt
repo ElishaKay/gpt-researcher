@@ -38,6 +38,12 @@ websockets
 unstructured
 pandas
 
+#multi-agents example
+langgraph==0.0.40
+langchain-community
+weasyprint
+json5
+
 # uncomment for testing
 # pytest
 # pytest-asyncio

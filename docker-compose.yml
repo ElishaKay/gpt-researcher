@@ -9,15 +9,15 @@ services:
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     ports:
       - 8000:8000
-  # react-client:
-  #   stdin_open: true
-  #   environment:
-  #     - CHOKIDAR_USEPOLLING=true
-  #   build:
-  #     dockerfile: Dockerfile.dev
-  #     context: ./react-frontend
-  #   volumes:
-  #     - /app/node_modules
-  #     - ./react-frontend:/app
-  #   ports:
-  #     - 3000:3000
+  gpt_researcher_nextjs:
+    build:
+      context: ./gpt_researcher_nextjs
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./gpt_researcher_nextjs:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    command: npm run dev

@@ -9,7 +9,6 @@ if os.environ.get("LANGCHAIN_API_KEY"):
     os.environ["LANGCHAIN_TRACING_V2"] = "true"
 load_dotenv()
 
-
 def open_task():
     with open('task.json', 'r') as f:
         task = json.load(f)
@@ -18,7 +17,6 @@ def open_task():
         raise Exception("No task provided. Please include a task.json file in the root directory.")
 
     return task
-
 
 async def main():
     task = open_task()

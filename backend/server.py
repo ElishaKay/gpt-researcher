@@ -1,6 +1,4 @@
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, File, UploadFile
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -9,12 +7,17 @@ from backend.utils import write_md_to_pdf, write_md_to_word, write_text_to_md
 import time
 import json
 import os
-import shutil
+import asyncio
+from multi_agents.main import main as run_research_task
 
 class ResearchRequest(BaseModel):
-    task: str
-    report_type: str
-    agent: str
+    query: str
+    model: str
+    max_sections: int
+    publish_formats: dict
+    follow_guidelines: bool
+    guidelines: list
+    verbose: bool
 
 app = FastAPI()
 
@@ -35,6 +38,29 @@ def startup_event():
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse('index.html', {"request": request, "report": None})
+
+@app.post("/generate_report")
+async def generate_report(request: ResearchRequest):
+    # Create task.json file from the request
+    task = {
+        "query": request.query,
+        "model": request.model,
+        "max_sections": request.max_sections,
+        "publish_formats": request.publish_formats,
+        "follow_guidelines": request.follow_guidelines,
+        "guidelines": request.guidelines,
+        "verbose": request.verbose
+    }
+
+    with open('task.json', 'w') as f:
+        json.dump(task, f)
+
+    try:
+        # Run the research task
+        research_report = await run_research_task()
+        return {"status": "success", "report": research_report}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -59,6 +85,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"type": "path", "output": {"pdf": pdf_path, "docx": docx_path, "md": md_path}})
                 else:
                     print("Error: not enough parameters provided.")
+
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 
@@ -100,3 +127,8 @@ async def delete_file(filename: str):
     else:
         print(f"File not found: {file_path}")
         return JSONResponse(status_code=404, content={"message": "File not found"})
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
