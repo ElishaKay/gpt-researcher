@@ -12,7 +12,6 @@ pydantic
 fastapi
 python-multipart
 markdown
-langchain>=0.2,<0.3
 langchain_community>=0.2,<0.3
 langchain-openai>=0.1,<0.2
 langchain-google-genai>=1,<2
@@ -40,6 +39,7 @@ pandas
 
 #multi-agents example
 langgraph==0.0.40
+langchain==0.2.0
 langchain-community
 weasyprint
 json5
