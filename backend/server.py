@@ -8,8 +8,14 @@ from backend.websocket_manager import WebSocketManager
 from backend.utils import write_md_to_pdf, write_md_to_word, write_text_to_md
 import time
 import json
+import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import shutil
+from backend.multi_agents.main import run_research_task
+
 
 class ResearchRequest(BaseModel):
     task: str
@@ -61,6 +67,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     print("Error: not enough parameters provided.")
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
+
+@app.post("/api/multi_agents")
+async def run_multi_agents():
+    websocket = manager.active_connections[0] if manager.active_connections else None
+    report = await run_research_task(websocket)
+    return {"report": report}
 
 # Enable CORS for your frontend domain (adjust accordingly)
 app.add_middleware(
