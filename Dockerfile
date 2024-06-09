@@ -18,6 +18,12 @@ RUN apt-get update \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Docker
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
 FROM install-browser as gpt-researcher-install
 
 ENV PIP_ROOT_USER_ACTION=ignore
@@ -37,5 +43,16 @@ USER gpt-researcher
 
 COPY --chown=gpt-researcher:gpt-researcher ./ ./
 
+# Ensure the correct path to langgraph.json
+COPY ./backend/multi_agents/langgraph.json ./langgraph.json
+
+# Switch to root to copy the script and change permissions
+USER root
+COPY start.sh /usr/src/app/start.sh
+RUN chmod +x /usr/src/app/start.sh
+
+# Switch back to the gpt-researcher user
+USER gpt-researcher
+
 EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/usr/src/app/start.sh"]

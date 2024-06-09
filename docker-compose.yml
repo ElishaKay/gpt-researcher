@@ -9,6 +9,8 @@ services:
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     ports:
       - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   # react-client:
   #   stdin_open: true
   #   environment:
