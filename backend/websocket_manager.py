@@ -65,7 +65,7 @@ async def run_agent(task, report_type, report_source, websocket):
     config_path = ""
     # Check if the report type is multi_agents
     if report_type == "multi_agents":
-        report = await run_research_task()
+        report = await run_research_task(query=task)
     elif report_type == ReportType.DetailedReport.value:
         researcher = DetailedReport(query=task, report_type=report_type, report_source=report_source,
                                     source_urls=None, config_path=config_path, websocket=websocket)
