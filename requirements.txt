@@ -45,7 +45,6 @@ pandas
 # Additional dependencies from multi_agents/requirements.txt
 langgraph-cli
 langgraph
-gpt_researcher
 weasyprint
 json5
 
