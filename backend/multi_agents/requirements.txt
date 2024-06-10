@@ -1,7 +1,7 @@
 langgraph-cli
 langgraph
-# gpt_researcher
+gpt_researcher
 langchain-community
-# python-dotenv
-# weasyprint
-# json5
+python-dotenv
+weasyprint
+json5

@@ -29,7 +29,8 @@ RUN pip install -r requirements.txt
 # Copy everything from the backend folder into the /app directory in the container
 COPY langgraph.json /app/langgraph.json
 COPY agent.py /app/agent.py  
-COPY .env /app/.env  
+COPY .env /app/.env
+COPY agents /app/agents
 
 # Expose the port that the API server will run on
 # EXPOSE 8123
