@@ -74,7 +74,7 @@ class GPTResearcher:
         Runs the GPT Researcher to conduct research
         """
         if self.verbose:
-            await stream_output("logs", f"🔎 Starting the research task for '{self.query}'...", self.websocket)
+            await stream_output("logs", "starting_research", f"🔎 Starting the research task for '{self.query}'...", self.websocket)
         
         # Generate Agent
         if not (self.agent and self.role):
@@ -82,7 +82,7 @@ class GPTResearcher:
                                                        parent_query=self.parent_query, cost_callback=self.add_costs)
 
         if self.verbose:
-            await stream_output("logs", self.agent, self.websocket)
+            await stream_output("logs", "agent_generated", self.agent, self.websocket)
 
         # If specified, the researcher will use the given urls as the context for the research.
         if self.source_urls:
@@ -97,7 +97,7 @@ class GPTResearcher:
         
         time.sleep(2)
         if self.verbose:
-            await stream_output("logs", f"Finalized research step.\n💸 Total Research Costs: ${self.get_costs()}", self.websocket)
+            await stream_output("logs", "research_step_finalized", f"Finalized research step.\n💸 Total Research Costs: ${self.get_costs()}", self.websocket)
 
         return self.context
 
@@ -111,7 +111,7 @@ class GPTResearcher:
         report = ""
 
         if self.verbose:
-            await stream_output("logs", f"✍️ Writing summary for research task: {self.query}...", self.websocket)
+            await stream_output("logs", "task_summary_coming_up", f"✍️ Writing summary for research task: {self.query}...", self.websocket)
             
         if self.report_type == "custom_report":
             self.role = self.cfg.agent_role if self.cfg.agent_role else self.role
@@ -158,6 +158,7 @@ class GPTResearcher:
         new_search_urls = await self.__get_new_urls(urls)
         if self.verbose:
             await stream_output("logs",
+                            "source_urls",
                             f"🧠 I will conduct my research based on the following urls: {new_search_urls}...",
                             self.websocket)
         scraped_sites = scrape_urls(new_search_urls, self.cfg)
@@ -181,6 +182,7 @@ class GPTResearcher:
 
         if self.verbose:
             await stream_output("logs",
+                                "subqueries",
                                 f"🧠 I will conduct my research based on the following queries: {sub_queries}...",
                                 self.websocket)
 
