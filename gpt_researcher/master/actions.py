@@ -273,7 +273,7 @@ async def generate_report(
     return report
 
 
-async def stream_output(type, content, output, websocket=None, logging=True):
+async def stream_output(type, content, output, websocket=None, logging=True, metadata=None):
     """
     Streams output to the websocket
     Args:
@@ -288,7 +288,7 @@ async def stream_output(type, content, output, websocket=None, logging=True):
         print(output)
 
     if websocket:
-        await websocket.send_json({"type": type, "content": content, "output": output})
+        await websocket.send_json({"type": type, "content": content, "output": output, "metadata": metadata})
 
 
 async def get_report_introduction(query, context, role, config, websocket=None, cost_callback: callable = None):
