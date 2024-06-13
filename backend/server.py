@@ -11,10 +11,9 @@ import json
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import shutil
 from backend.multi_agents.main import run_research_task
+from gpt_researcher.document.document import DocumentLoader
 
 
 class ResearchRequest(BaseModel):
@@ -97,6 +96,11 @@ async def upload_file(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     print(f"File uploaded to {file_path}")
+
+    # Load documents after upload
+    document_loader = DocumentLoader(DOC_PATH)
+    await document_loader.load()
+
     return {"filename": file.filename, "path": file_path}
 
 @app.get("/files/")
