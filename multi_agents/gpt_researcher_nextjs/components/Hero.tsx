@@ -35,7 +35,7 @@ const Hero: FC<THeroProps> = ({
         </a>
         <div className="landing">
           <h1 className="text-4xl font-extrabold mx-auto lg:text-7xl">
-            Say Goodbye to <br/>
+            Introducing <br/>
             <span
               style={{
                 backgroundImage: 'linear-gradient(to right, #9867F0, #ED4E50)',
@@ -43,7 +43,7 @@ const Hero: FC<THeroProps> = ({
                 WebkitTextFillColor: 'transparent'
               }}
             >
-              Hours of Research
+              FiverrBud
             </span>
           </h1>
         </div>
@@ -95,18 +95,18 @@ type suggestionType = {
 const suggestions: suggestionType[] = [
   {
     id: 1,
-    name: "How does photosynthesis work?",
-    icon: "/img/icon _leaf_.svg",
+    name: "Looking for a freelancer to ",
+    icon: "/img/shooting-star.svg",
   },
   {
     id: 2,
-    name: "How can I get a 6 pack in 3 months?",
-    icon: "/img/icon _dumbell_.svg",
+    name: "I need help with ",
+    icon: "/img/hiker.svg",
   },
   {
     id: 3,
-    name: "Can you explain the theory of relativity?",
-    icon: "/img/icon _atom_.svg",
+    name: "I need a team of freelancers to ",
+    icon: "/img/team.svg",
   },
 ];
 
