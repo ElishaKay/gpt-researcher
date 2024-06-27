@@ -10,7 +10,7 @@ import Sources from "@/components/Sources";
 import Question from "@/components/Question";
 import SubQuestions from "@/components/SubQuestions";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import AccessReport from '../components/Task/AccessReport';
 import Accordion from '../components/Task/Accordion';
@@ -33,38 +33,49 @@ export default function Home() {
   const [socket, setSocket] = useState(null);
   const [orderedData, setOrderedData] = useState([]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { protocol, pathname } = window.location;
-      let { host } = window.location;
-      host = host.includes('localhost') ? 'localhost:8000' : host;
-      const ws_uri = `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}${pathname}ws`;
-      
-      const newSocket = new WebSocket(ws_uri);
-      setSocket(newSocket);
-
-      newSocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('websocket data caught in frontend: ', data);
-        const contentAndType = `${data.content}-${data.type}`;
-        setOrderedData((prevOrder) => [...prevOrder, { ...data, contentAndType }]);
-
-        if (data.type === 'report') {
-          setAnswer((prev) => prev + data.output);
-        } else if (data.type === 'path') {
-          setLoading(false);
-        }
-      };
-
-      return () => newSocket.close();
-    }
-  }, []);
-
   const startResearch = (chatBoxSettings) => {
-    const {task, report_type, report_source} = chatBoxSettings;
-    
-    let data = "start " + JSON.stringify({ task: 'site:fiverr.com ' + promptValue, report_type, report_source });
-    socket.send(data);
+    if (chatBoxSettings.report_type !== 'multi_agents') {
+      if (!socket) {
+        if (typeof window !== 'undefined') {
+          const { protocol, pathname } = window.location;
+          let { host } = window.location;
+          host = host.includes('localhost') ? 'localhost:8000' : host;
+          const ws_uri = `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}${pathname}ws`;
+          
+          const newSocket = new WebSocket(ws_uri);
+          setSocket(newSocket);
+
+          newSocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('websocket data caught in frontend: ', data);
+            const contentAndType = `${data.content}-${data.type}`;
+            setOrderedData((prevOrder) => [...prevOrder, { ...data, contentAndType }]);
+
+            if (data.type === 'report') {
+              setAnswer((prev) => prev + data.output);
+            } else if (data.type === 'path') {
+              setLoading(false);
+              newSocket.close();
+              setSocket(null);
+            }
+          };
+
+          newSocket.onopen = () => {
+            const { task, report_type, report_source } = chatBoxSettings;
+            let data = "start " + JSON.stringify({ task: 'site:fiverr.com ' + promptValue, report_type, report_source });
+            newSocket.send(data);
+          };
+
+          newSocket.onclose = () => {
+            setSocket(null);
+          };
+        }
+      } else {
+        const { task, report_type, report_source } = chatBoxSettings;
+        let data = "start " + JSON.stringify({ task:  'site:fiverr.com ' + promptValue, report_type, report_source });
+        socket.send(data);
+      }
+    }
   };
 
   const handleDisplayResult = async (newQuestion?: string) => {
