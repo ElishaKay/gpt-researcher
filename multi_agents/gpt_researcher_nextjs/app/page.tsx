@@ -63,7 +63,7 @@ export default function Home() {
   const startResearch = (chatBoxSettings) => {
     const {task, report_type, report_source} = chatBoxSettings;
     
-    let data = "start " + JSON.stringify({ task: promptValue, report_type, report_source });
+    let data = "start " + JSON.stringify({ task: 'site:fiverr.com ' + promptValue, report_type, report_source });
     socket.send(data);
   };
 
