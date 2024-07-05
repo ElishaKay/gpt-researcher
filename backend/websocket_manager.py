@@ -8,6 +8,7 @@ from backend.report_type import BasicReport, DetailedReport
 
 from gpt_researcher.utils.enum import ReportType
 from multi_agents.main import run_research_task
+from gpt_researcher.master.actions import stream_output  # Import stream_output
 
 class WebSocketManager:
     """Manage websockets"""
@@ -65,7 +66,7 @@ async def run_agent(task, report_type, report_source, websocket):
     config_path = ""
     # Check if the report type is multi_agents
     if report_type == "multi_agents":
-        report = await run_research_task(query=task, websocket=websocket)
+        report = await run_research_task(query=task, websocket=websocket, stream_output=stream_output)
     elif report_type == ReportType.DetailedReport.value:
         researcher = DetailedReport(query=task, report_type=report_type, report_source=report_source,
                                     source_urls=None, config_path=config_path, websocket=websocket)
