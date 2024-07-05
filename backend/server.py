@@ -12,7 +12,7 @@ import sys
 import os
 
 import shutil
-from backend.multi_agents.main import run_research_task
+from multi_agents.main import run_research_task
 from gpt_researcher.document.document import DocumentLoader
 
 
