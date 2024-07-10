@@ -176,7 +176,8 @@ class GPTResearcher:
         # Generate Sub-Queries including original query
         sub_queries = await get_sub_queries(query=query, agent_role_prompt=self.role,
                                             cfg=self.cfg, parent_query=self.parent_query,
-                                            report_type=self.report_type, cost_callback=self.add_costs)
+                                            report_type=self.report_type, cost_callback=self.add_costs,
+                                            openai_api_key=self.headers.get("openai_api_key"))  # Pass the API key
 
         # If this is not part of a sub researcher, add original query to research for better results
         if self.report_type != "subtopic_report":

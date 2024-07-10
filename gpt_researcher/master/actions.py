@@ -81,7 +81,7 @@ async def choose_agent(query, cfg, parent_query=None, cost_callback: callable = 
 
 
 async def get_sub_queries(query: str, agent_role_prompt: str, cfg, parent_query: str,
-                          report_type: str, cost_callback: callable = None):
+                          report_type: str, cost_callback: callable = None, openai_api_key=None):
     """
     Gets the sub queries
     Args:
@@ -105,7 +105,8 @@ async def get_sub_queries(query: str, agent_role_prompt: str, cfg, parent_query:
         temperature=0,
         llm_provider=cfg.llm_provider,
         llm_kwargs=cfg.llm_kwargs,
-        cost_callback=cost_callback
+        cost_callback=cost_callback,
+        openai_api_key=openai_api_key
     )
 
     print("response : ", response)
