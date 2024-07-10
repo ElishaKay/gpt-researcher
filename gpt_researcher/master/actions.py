@@ -42,12 +42,13 @@ def get_retriever(retriever):
             retriever = TavilySearch
 
         case _:
-            raise Exception("Retriever not found.")
+            from gpt_researcher.retrievers import TavilySearch
+            retriever = TavilySearch
 
     return retriever
 
 
-async def choose_agent(query, cfg, parent_query=None, cost_callback: callable = None):
+async def choose_agent(query, cfg, parent_query=None, cost_callback: callable = None, headers=None):
     """
     Chooses the agent automatically
     Args:
@@ -71,7 +72,8 @@ async def choose_agent(query, cfg, parent_query=None, cost_callback: callable = 
             temperature=0,
             llm_provider=cfg.llm_provider,
             llm_kwargs=cfg.llm_kwargs,
-            cost_callback=cost_callback
+            cost_callback=cost_callback,
+            openai_api_key=headers.get("openai_api_key")
         )
         agent_dict = json.loads(response)
         return agent_dict["server"], agent_dict["agent_role_prompt"]
@@ -227,7 +229,8 @@ async def generate_report(
     cfg,
     main_topic: str = "",
     existing_headers: list = [],
-    cost_callback: callable = None
+    cost_callback: callable = None,
+    headers=None
 ):
     """
     generates the final report
@@ -266,7 +269,8 @@ async def generate_report(
             websocket=websocket,
             max_tokens=cfg.smart_token_limit,
             llm_kwargs=cfg.llm_kwargs,
-            cost_callback=cost_callback
+            cost_callback=cost_callback,
+            openai_api_key=headers.get("openai_api_key")
         )
     except Exception as e:
         print(f"{Fore.RED}Error in generate_report: {e}{Style.RESET_ALL}")

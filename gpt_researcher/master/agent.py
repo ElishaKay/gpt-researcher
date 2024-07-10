@@ -81,7 +81,7 @@ class GPTResearcher:
         # Generate Agent
         if not (self.agent and self.role):
             self.agent, self.role = await choose_agent(query=self.query, cfg=self.cfg,
-                                                       parent_query=self.parent_query, cost_callback=self.add_costs)
+                                                       parent_query=self.parent_query, cost_callback=self.add_costs, headers=self.headers)
 
         if self.verbose:
             await stream_output("logs", "agent_generated", self.agent, self.websocket)
@@ -124,7 +124,8 @@ class GPTResearcher:
                 report_type=self.report_type,
                 report_source=self.report_source,
                 websocket=self.websocket,
-                cfg=self.cfg
+                cfg=self.cfg,
+                headers=self.headers
             )
         elif self.report_type == "subtopic_report":
             report = await generate_report(
@@ -137,7 +138,8 @@ class GPTResearcher:
                 cfg=self.cfg,
                 main_topic=self.parent_query,
                 existing_headers=existing_headers,
-                cost_callback=self.add_costs
+                cost_callback=self.add_costs,
+                headers=self.headers
             )
         else:
             report = await generate_report(
@@ -148,7 +150,8 @@ class GPTResearcher:
                 report_source=self.report_source,
                 websocket=self.websocket,
                 cfg=self.cfg,
-                cost_callback=self.add_costs
+                cost_callback=self.add_costs,
+                headers=self.headers
             )
 
         return report
