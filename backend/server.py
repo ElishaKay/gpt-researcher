@@ -66,10 +66,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 json_data = json.loads(data[6:])
                 task = json_data.get("task")
                 report_type = json_data.get("report_type")
+                headers = json_data.get("headers", {})
                 filename = f"task_{int(time.time())}_{task}"
                 report_source = json_data.get("report_source")
                 if task and report_type:
-                    report = await manager.start_streaming(task, report_type, report_source, websocket)
+                    report = await manager.start_streaming(task, report_type, report_source, websocket, headers)
                     # Ensure report is a string
                     if not isinstance(report, str):
                         report = str(report)
