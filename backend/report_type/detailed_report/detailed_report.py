@@ -8,7 +8,7 @@ from gpt_researcher.master.actions import (add_source_urls, extract_headers,
 
 
 class DetailedReport():
-    def __init__(self, query: str, report_type: str, report_source: str, source_urls, config_path: str, websocket: WebSocket, subtopics=[]):
+    def __init__(self, query: str, report_type: str, report_source: str, source_urls, config_path: str, websocket: WebSocket, subtopics=[], headers=None):
         self.query = query
         self.report_type = report_type
         self.report_source = report_source
@@ -16,9 +16,10 @@ class DetailedReport():
         self.config_path = config_path
         self.websocket = websocket
         self.subtopics = subtopics
+        self.headers = headers or {}
         
         # A parent task assistant. Adding research_report as default
-        self.main_task_assistant = GPTResearcher(self.query, "research_report", self.report_source, self.source_urls, self.config_path, self.websocket)
+        self.main_task_assistant = GPTResearcher(self.query, "research_report", self.report_source, self.source_urls, self.config_path, self.websocket, self.headers)
         self.existing_headers = []
         # This is a global variable to store the entire context accumulated at any point through searching and scraping
         self.global_context = []
@@ -103,6 +104,7 @@ class DetailedReport():
             report_type="subtopic_report",
             report_source=self.report_source,
             websocket=self.websocket,
+            headers=self.headers,
             parent_query=self.query,
             subtopics=self.subtopics,
             visited_urls=self.global_urls,

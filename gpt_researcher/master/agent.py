@@ -45,6 +45,7 @@ class GPTResearcher:
             subtopics: list
             visited_urls: set
         """
+        self.headers = headers or {}  # Store the headers
         self.query: str = query
         self.agent: str = agent
         self.role: str = role
@@ -53,14 +54,14 @@ class GPTResearcher:
         self.report_source: str = report_source
         self.research_costs: float = 0.0
         self.cfg = Config(config_path)
-        self.retriever = get_retriever(headers.get("retriever")) or get_retriever(self.cfg.retriever)
+        self.retriever = get_retriever(self.headers.get("retriever")) or get_retriever(self.cfg.retriever)
         self.context = context
         self.source_urls = source_urls
         self.memory = Memory(self.cfg.embedding_provider, headers=headers)  # Pass headers to Memory
         self.visited_urls: set[str] = visited_urls
         self.verbose: bool = verbose
         self.websocket = websocket
-        self.headers = headers or {}  # Store the headers
+        
 
         # Only relevant for DETAILED REPORTS
         # --------------------------------------
