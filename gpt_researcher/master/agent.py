@@ -7,7 +7,7 @@ from gpt_researcher.document import DocumentLoader
 from gpt_researcher.master.actions import *
 from gpt_researcher.memory import Memory
 from gpt_researcher.utils.enum import ReportSource, ReportType
-
+import sys
 
 class GPTResearcher:
     """
@@ -46,6 +46,8 @@ class GPTResearcher:
             visited_urls: set
         """
         self.headers = headers or {}  # Store the headers
+        print("headers in GPTR Class", headers)
+        sys.stdout.flush()
         self.query: str = query
         self.agent: str = agent
         self.role: str = role
@@ -57,7 +59,7 @@ class GPTResearcher:
         self.retriever = get_retriever(self.headers.get("retriever")) or get_retriever(self.cfg.retriever)
         self.context = context
         self.source_urls = source_urls
-        self.memory = Memory(self.cfg.embedding_provider, headers=headers)  # Pass headers to Memory
+        self.memory = Memory(self.cfg.embedding_provider, self.headers)  # Pass headers to Memory
         self.visited_urls: set[str] = visited_urls
         self.verbose: bool = verbose
         self.websocket = websocket
