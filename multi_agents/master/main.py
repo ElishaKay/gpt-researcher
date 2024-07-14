@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
-from .agents import ChiefEditorAgent
 import asyncio
 import json
 import os
+
 from gpt_researcher.utils.enum import Tone
+from multi_agents.master import ChiefEditorAgent
 
 # Run with LangSmith if API key is set
 if os.environ.get("LANGCHAIN_API_KEY"):
