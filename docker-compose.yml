@@ -11,6 +11,9 @@ services:
     restart: always
     ports:
       - 8000:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   gptr-nextjs:
     pull_policy: build
     image: gptresearcher/gptr-nextjs
