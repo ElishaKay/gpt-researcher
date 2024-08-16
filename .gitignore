@@ -35,3 +35,4 @@ docs/build
 .langgraph-data/
 .next/
 package-lock.json
+ollama/
