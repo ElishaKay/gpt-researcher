@@ -26,6 +26,7 @@ lxml_html_clean
 websockets
 unstructured
 json_repair
+langchain_community>=0.2,<0.3
 
 # uncomment for testing
 # pytest
