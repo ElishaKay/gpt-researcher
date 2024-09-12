@@ -12,21 +12,21 @@ services:
     ports:
       - 8000:8000
 
-  gptr-nextjs:
-    pull_policy: build
-    image: gptresearcher/gptr-nextjs
-    stdin_open: true
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    build:
-      dockerfile: Dockerfile.dev
-      context: frontend/nextjs
-    volumes:
-      - /app/node_modules
-      - ./frontend/nextjs:/app
-    restart: always
-    ports:
-      - 3000:3000
+  # gptr-nextjs:
+  #   pull_policy: build
+  #   image: gptresearcher/gptr-nextjs
+  #   stdin_open: true
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: frontend/nextjs
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./frontend/nextjs:/app
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
 
   gpt-researcher-tests:
     image: gptresearcher/gpt-researcher-tests
@@ -54,5 +54,5 @@ services:
       - ./docs/discord-bot:/app
     ports:
       - 3001:3000
-    profiles: ["discord"]
+    # profiles: ["discord"]
     restart: always

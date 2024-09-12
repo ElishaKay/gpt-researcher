@@ -71,10 +71,6 @@ class RubberDuckerAgent:
 
             You MUST return nothing but a JSON in the following format (without json markdown).
             Respond in the following JSON format: {sample_json}
-
-            Please take into account the Discord markdown guide & valid JSON guide within your json response.
-            discord_markdown_guide: {discord_markdown_guide}
-            valid_json_guide: {valid_json_guide}
             """}
         ]
 

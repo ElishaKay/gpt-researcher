@@ -1,6 +1,7 @@
 import asyncio
 from dotenv import load_dotenv
 from multi_agents.dev_team import run_dev_team_flow
+import json
 
 load_dotenv()
 
@@ -29,7 +30,14 @@ async def trigger_dev_team_flow(repo_name, query, branch_name, websocket=None, s
     # Remove the FAISS object from the result dictionary
     if isinstance(result, dict):
         result = {k: v for k, v in result.items() if k != 'vector_store'}
-    
+
+    # Convert rubber_duck_thoughts to a proper JSON string
+    if 'rubber_duck_thoughts' in result:
+        if isinstance(result['rubber_duck_thoughts'], str):
+            # Replace line breaks and remove unnecessary characters
+            cleaned_thoughts = result['rubber_duck_thoughts'].replace('\n', '').replace('+', '')
+            result['rubber_duck_thoughts'] = json.dumps(cleaned_thoughts)
+
     if websocket and stream_output:
         try:
             await stream_output("logs", "dev_team_result", result, websocket)

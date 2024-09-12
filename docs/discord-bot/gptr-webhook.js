@@ -55,7 +55,8 @@ async function sendWebhookMessage(message) {
       report_source: 'web',
       tone: 'Objective',
       headers: {},
-      repo_name: 'elishakay/gpt-researcher'
+      repo_name: 'elishakay/gpt-researcher',
+      branch_name: "dev-threads"
     };
 
     const payload = "start " + JSON.stringify(data);

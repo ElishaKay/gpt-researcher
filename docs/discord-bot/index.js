@@ -88,14 +88,29 @@ client.on(Events.InteractionCreate, async interaction => {
     const branchName = interaction.fields.getTextInputValue('branchNameInput');
 
     // Determine if the interaction is in a public channel
-    const isPublicChannel = interaction.channel.type === 'GUILD_TEXT';
+    const isPublicChannel = interaction?.channel?.type === 'GUILD_TEXT';
 
     await runDevTeam({interaction, query, relevantFileNames, repoName, branchName, isPublicChannel});
   }
 });
 
+function parseJSONifJSON(data) {
+  try {
+    if (typeof data === 'string') {
+        parsedData = JSON.parse(data);
+    } else {
+        parsedData = data; // Assume it's already a valid object
+    }
+    // Continue with your code using parsedData
+    } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        return; // Handle error appropriately
+    }
+    return parsedData;
+}
+
 async function runDevTeam({ interaction, query, relevantFileNames, repoName, branchName, thread }) {
-  await interaction.reply({ content: "Looking through the code to investigate your query... give me a minute or so" });
+  await interaction.reply({ content: `user query: ${query} \n\n Looking through the code to investigate your query... give me a minute or so` });
 
   try {
     // Await the response from GPTR via WebSocket
@@ -104,7 +119,10 @@ async function runDevTeam({ interaction, query, relevantFileNames, repoName, bra
     // Check if the response is valid
     if (gptrResponse && gptrResponse.rubber_ducker_thoughts) {
       // Combine and split the messages into chunks
-      const rubberDuckerChunks = splitMessage(JSON.parse(gptrResponse.rubber_ducker_thoughts).thoughts);
+      const parsedResponse = parseJSONifJSON(gptrResponse);
+      parsedResponse.rubber_ducker_thoughts = parseJSONifJSON(parsedResponse.rubber_ducker_thoughts);
+
+      const rubberDuckerChunks = splitMessage(parsedResponse.rubber_ducker_thoughts.thoughts);
 
       // Send each chunk of Rubber Ducker Thoughts to the thread
       if (thread) {
