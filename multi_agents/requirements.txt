@@ -11,3 +11,8 @@ openai
 colorama
 langchain-openai
 faiss-cpu
+
+#PGVector
+langchain_postgres
+psycopg[binary]
+
