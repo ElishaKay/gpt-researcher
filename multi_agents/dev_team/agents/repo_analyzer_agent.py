@@ -10,12 +10,13 @@ class RepoAnalyzerAgent:
         print('state', state)
         print("Analyzing repo vector store", vector_store)
 
-        researcher = GPTResearcher(
-            query=query,
-            report_type="research_report",
-            report_source="langchain_vectorstore",
-            vector_store=vector_store,
-        )
-        await researcher.conduct_research()
-        report = await researcher.write_report()
-        return {"repo_analysis": report}
+        # researcher = GPTResearcher(
+        #     query=query,
+        #     report_type="research_report",
+        #     report_source="langchain_vectorstore",
+        #     vector_store=vector_store,
+        # )
+        # await researcher.conduct_research()
+        related_contexts = await vector_store.asimilarity_search("websocket", k=5)
+        print('related_contents in repo_analyzer: ',related_contexts)
+        print(len(related_contexts))
