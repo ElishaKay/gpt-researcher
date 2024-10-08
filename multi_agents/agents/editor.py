@@ -127,18 +127,23 @@ class EditorAgent:
         agents = self._initialize_agents()
         workflow = StateGraph(DraftState)
 
+        # Add nodes
         workflow.add_node("researcher", agents["research"].run_depth_research)
         workflow.add_node("reviewer", agents["reviewer"].run)
         workflow.add_node("reviser", agents["reviser"].run)
 
+        # Set entry point and connect nodes
         workflow.set_entry_point("researcher")
         workflow.add_edge("researcher", "reviewer")
-        workflow.add_edge("reviser", "reviewer")
-        # workflow.add_conditional_edges(
-        #     "reviewer",
-        #     lambda draft: "accept" if draft["review"] is None else "revise",
-        #     {"accept": END, "revise": "reviser"},
-        # )
+        workflow.add_edge("reviewer", "reviser")  # This will connect reviewer to reviser
+        workflow.add_edge("reviser", "researcher")  # Connect back to researcher
+
+        # Add conditional edges to create the loop
+        workflow.add_conditional_edges(
+            "reviewer",
+            lambda draft: "accept" if draft["review"] is None else "revise",
+            {"accept": END, "revise": "reviser"},
+        )
 
         return workflow
 
