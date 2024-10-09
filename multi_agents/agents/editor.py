@@ -82,7 +82,6 @@ class EditorAgent:
         workflow.add_node("reviewer", reviewer_agent.run)
         workflow.add_node("reviser", reviser_agent.run)
 
-        # set up edges researcher->reviewer->reviser->reviewer...
         workflow.set_entry_point("researcher")
         workflow.add_edge("researcher", "reviewer")
         workflow.add_edge("reviser", "reviewer")
@@ -94,33 +93,14 @@ class EditorAgent:
 
         chain = workflow.compile()
 
-        # Execute the graph for each query in parallel
-        if self.websocket and self.stream_output:
-            await self.stream_output(
-                "logs",
-                "parallel_research",
-                f"Running parallel research for the following queries: {queries}",
-                self.websocket,
-            )
-        else:
-            print_agent_output(
-                f"Running the following research tasks in parallel: {queries}...",
-                agent="EDITOR",
-            )
-
-        final_drafts = [
-            chain.ainvoke(
-                {
-                    "task": research_state.get("task"),
-                    "topic": query,  # + (f". Also: {human_feedback}" if human_feedback is not None else ""),
-                    "title": title,
-                    "headers": self.headers,
-                }
-            )
-            for query in queries
-        ]
-        research_results = [
-            result["draft"] for result in await asyncio.gather(*final_drafts)
-        ]
+        research_results = []
+        for query in queries:
+            result = await chain.ainvoke({
+                "task": research_state.get("task"),
+                "topic": query,
+                "title": title,
+                "headers": self.headers,
+            })
+            research_results.append(result["draft"])
 
         return {"research_data": research_results}
