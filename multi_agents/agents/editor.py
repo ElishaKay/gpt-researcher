@@ -48,30 +48,39 @@ class EditorAgent:
             "sections": plan.get("sections"),
         }
 
-    async def run_parallel_research(self, research_state: Dict[str, any]) -> Dict[str, List[str]]:
-        """
-        Execute parallel research tasks for each section.
-
-        :param research_state: Dictionary containing research state information
-        :return: Dictionary with research results
-        """
-        agents = self._initialize_agents()
-        workflow = self._create_workflow()
-        chain = workflow.compile()
-
+    async def run_parallel_research(self, research_state: dict):
+        research_agent = ResearchAgent(self.websocket, self.stream_output, self.headers)
+        reviewer_agent = ReviewerAgent(self.websocket, self.stream_output, self.headers)
+        reviser_agent = ReviserAgent(self.websocket, self.stream_output, self.headers)
         queries = research_state.get("sections")
         title = research_state.get("title")
+        human_feedback = research_state.get("human_feedback")
+        workflow = StateGraph(DraftState)
 
-        self._log_parallel_research(queries)
+        workflow.add_node("researcher", research_agent.run_depth_research)
+        workflow.add_node("reviewer", reviewer_agent.run)
+        workflow.add_node("reviser", reviser_agent.run)
 
-        final_drafts = [
-            chain.ainvoke(self._create_task_input(
-                research_state, query, title))
-            for query in queries
-        ]
-        research_results = [
-            result["draft"] for result in await asyncio.gather(*final_drafts)
-        ]
+        workflow.set_entry_point("researcher")
+        workflow.add_edge("researcher", "reviewer")
+        workflow.add_edge("reviser", "reviewer")
+        workflow.add_conditional_edges(
+            "reviewer",
+            (lambda draft: "accept" if draft["review"] is None else "revise"),
+            {"accept": END, "revise": "reviser"},
+        )
+
+        chain = workflow.compile()
+
+        research_results = []
+        for query in queries:
+            result = await chain.ainvoke({
+                "task": research_state.get("task"),
+                "topic": query,
+                "title": title,
+                "headers": self.headers,
+            })
+            research_results.append(result["draft"])
 
         return {"research_data": research_results}
 
