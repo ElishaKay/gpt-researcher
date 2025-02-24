@@ -12,6 +12,7 @@ services:
       - ${PWD}/my-docs:/usr/src/app/my-docs:rw
       - ${PWD}/outputs:/usr/src/app/outputs:rw
       - ${PWD}/logs:/usr/src/app/logs:rw
+      - ./frontend:/usr/src/app/frontend:rw
     user: root
     restart: always
     ports:
@@ -33,9 +34,34 @@ services:
       - /app/node_modules
       - ./frontend/nextjs:/app
       - ./outputs:/app/outputs
+      - ./frontend:/usr/src/app/frontend
+    command: npm run dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
     ports:
       - 3000:3000
+
+  gptr-nextjs-build:
+    image: gptresearcher/gptr-nextjs
+    build:
+      dockerfile: Dockerfile.dev
+      context: frontend/nextjs
+    volumes:
+      - /app/node_modules
+      - ./frontend/nextjs:/app
+      - ./frontend:/usr/src/app/frontend
+    profiles: ["build"]
+    command: >
+      /bin/sh -c "
+      npm run build &&
+      mkdir -p /usr/src/app/frontend &&
+      cp -r /app/out/* /usr/src/app/frontend/ &&
+      echo 'Build complete, static files copied to frontend directory'
+      "
 
   gpt-researcher-tests:
     image: gptresearcher/gpt-researcher-tests
