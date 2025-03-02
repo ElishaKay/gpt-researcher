@@ -11,7 +11,7 @@ python-multipart
 markdown
 langchain
 langchain_community
-
+langchain_openai
 tiktoken
 gpt-researcher
 arxiv
