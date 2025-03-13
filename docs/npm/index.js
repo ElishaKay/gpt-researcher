@@ -6,80 +6,33 @@ class GPTResearcherWebhook {
     this.host = options.host || 'gpt-researcher:8000';
     this.socket = null;
     this.responseCallbacks = new Map();
-    this.logListener = options.logListener; // Add this line
+    this.logListener = options.logListener;
   }
 
-  async initializeWebSocket() {
-    if (!this.socket) {
-      const host = this.host.replace('http://', '').replace('https://', '');
-      const ws_uri = `${this.host.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
-      this.socket = new WebSocket(ws_uri);
+  // ... (keep existing initializeWebSocket method)
 
-      this.socket.onopen = () => {
-        console.log('WebSocket connection established');
-      };
-
-      this.socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        
-        // Handle logs with custom listener if provided
-        if (this.logListener) {
-          this.logListener(data);
-        } else {
-          console.log('WebSocket data received:', data);
-        }
-
-        const callback = this.responseCallbacks.get('current');
-        
-      };
-
-      this.socket.onclose = () => {
-        console.log('WebSocket connection closed');
-        this.socket = null;
-      };
-
-      this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    }
-  }
-
-  async sendMessage({query, moreContext, repoName = 'assafelovic/gpt-researcher', branchName = 'master'}) {
+  async sendMessage({
+    task,
+    reportType = 'research_report',
+    reportSource = 'web',
+    tone = 'professional',
+    queryDomains = []
+  }) {
     return new Promise((resolve, reject) => {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         this.initializeWebSocket();
       }
 
-      const data = {
-        task: `${query}. Additional context: ${moreContext}`,
-        report_type: 'research_report',
-        report_source: 'web',
-        tone: 'Objective',
-        headers: {},
-        repo_name: repoName,
-        branch_name: branchName
+      const message = {
+        task,
+        report_type: reportType,
+        report_source: reportSource,
+        tone,
+        query_domains: queryDomains
       };
 
-      const payload = "start " + JSON.stringify(data);
-
-      this.responseCallbacks.set('current', {
-        onProgress: (progressData) => {
-          resolve({ type: 'progress', data: progressData });
-        },
-        onComplete: (finalData) => {
-          resolve({ type: 'complete', data: finalData });
-        }
-      });
-
-      if (this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send(payload);
-        console.log('Message sent:', payload);
-      } else {
-        this.socket.onopen = () => {
-          this.socket.send(payload);
-          console.log('Message sent after connection:', payload);
-        };
-      }
+      this.responseCallbacks.set('current', resolve);
+      this.socket.send(JSON.stringify(message));
     });
   }
 }
