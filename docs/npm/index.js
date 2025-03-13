@@ -3,15 +3,19 @@ const WebSocket = require('ws');
 
 class GPTResearcher {
   constructor(options = {}) {
-    this.host = options.host || 'gpt-researcher:8000';
+    this.host = options.host || 'http://localhost:8000';
     this.socket = null;
     this.responseCallbacks = new Map();
     this.logListener = options.logListener;
+    this.tone = options.tone || 'Reflective';
   }
 
   async initializeWebSocket() {
     if (!this.socket) {
-      const ws_uri = `ws://${this.host}/ws`;
+      
+      const protocol = this.host.includes('https') ? 'wss:' : 'ws:';
+      const cleanHost = this.host.replace('http://', '').replace('https://', '');
+      const ws_uri = `${protocol}//${cleanHost}/ws`;
       this.socket = new WebSocket(ws_uri);
 
       this.socket.onopen = () => {
@@ -46,13 +50,11 @@ class GPTResearcher {
   async sendMessage({
     task,
     reportType = 'research_report',
-    reportSource = 'web', 
-    tone = 'professional',
+    reportSource = 'web',
     queryDomains = [],
+    tone = 'Reflective',
     query,
-    moreContext,
-    repoName = 'assafelovic/gpt-researcher',
-    branchName = 'master'
+    moreContext
   }) {
     return new Promise((resolve, reject) => {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
@@ -63,10 +65,8 @@ class GPTResearcher {
         task: query ? `${query}. Additional context: ${moreContext}` : task,
         report_type: reportType,
         report_source: reportSource,
-        tone: tone,
         headers: {},
-        repo_name: repoName,
-        branch_name: branchName,
+        tone: tone,
         query_domains: queryDomains
       };
 
