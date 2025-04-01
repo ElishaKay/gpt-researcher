@@ -48,4 +48,16 @@ export interface ResearchHistoryItem {
   answer: string;
   timestamp: number;
   orderedData: Data[];
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
+export interface ChatHistoryItem {
+  id: string;
+  messages: ChatMessage[];
+  timestamp: number;
 } 

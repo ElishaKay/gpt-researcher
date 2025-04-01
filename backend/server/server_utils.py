@@ -173,9 +173,9 @@ async def handle_human_feedback(data: str):
     # TODO: Add logic to forward the feedback to the appropriate agent or update the research state
 
 async def handle_chat(websocket, data: str, manager):
-    json_data = json.loads(data[4:])
+    json_data = json.loads(data[4:])  # Remove "chat" prefix
     print(f"Received chat message: {json_data.get('message')}")
-    await manager.chat(json_data.get("message"), websocket)
+    await manager.chat(json_data, websocket)
 
 async def generate_report_files(report: str, filename: str) -> Dict[str, str]:
     pdf_path = await write_md_to_pdf(report, filename)

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { Data, ChatBoxSettings, QuestionData } from '../types/data';
+import { Data, ChatBoxSettings, QuestionData, ChatMessage } from '../types/data';
 import { getHost } from '../helpers/getHost';
 
 export const useWebSocket = (
@@ -12,6 +12,7 @@ export const useWebSocket = (
 ) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const heartbeatInterval = useRef<number>();
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
   // Cleanup function for heartbeat
   useEffect(() => {
@@ -82,6 +83,12 @@ export const useWebSocket = (
 
             if (data.type === 'report') {
               setAnswer((prev: string) => prev + data.output);
+              // Add assistant message to chat history
+              setChatHistory(prev => [...prev, {
+                role: 'assistant',
+                content: data.output,
+                timestamp: Date.now()
+              }]);
             } else if (data.type === 'path' || data.type === 'chat') {
               setLoading(false);
             }
@@ -105,7 +112,24 @@ export const useWebSocket = (
         }
       };
     }
-  }, [socket, currentApiUrl]); // Add currentApiUrl to dependencies
+  }, [socket, currentApiUrl]);
 
-  return { socket, setSocket, initializeWebSocket };
+  const sendChatMessage = useCallback((message: string) => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      // Add user message to chat history
+      setChatHistory(prev => [...prev, {
+        role: 'user',
+        content: message,
+        timestamp: Date.now()
+      }]);
+      
+      // Send message with chat history
+      socket.send(`chat${JSON.stringify({ 
+        message,
+        history: chatHistory
+      })}`);
+    }
+  }, [socket, chatHistory]);
+
+  return { socket, setSocket, initializeWebSocket, sendChatMessage, chatHistory };
 };
