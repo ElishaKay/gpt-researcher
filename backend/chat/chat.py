@@ -84,6 +84,16 @@ class ChatAgentWithMemory:
 
     async def chat(self, message, websocket):
         """Chat with React Agent"""
+        # Format chat history into a string
+        chat_history = ""
+        if isinstance(message, dict) and 'history' in message:
+            history = message['history']
+            for msg in history:
+                role = msg['role']
+                content = msg['content']
+                chat_history += f"{role}: {content}\n"
+            message = message['message']
+
         message = f"""
          You are GPT Researcher, a autonomous research agent created by an open source community at https://github.com/assafelovic/gpt-researcher, homepage: https://gptr.dev. 
          To learn more about GPT Researcher you can suggest to check out: https://docs.gptr.dev.
@@ -91,6 +101,9 @@ class ChatAgentWithMemory:
          This is a chat message between the user and you: GPT Researcher. 
          The chat is about a research reports that you created. Answer based on the given context and report.
          You must include citations to your answer based on the report.
+         
+         Previous chat history:
+         {chat_history}
          
          Report: {self.report}
          User Message: {message}

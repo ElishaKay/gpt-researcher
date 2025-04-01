@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useResearchHistory } from '@/hooks/useResearchHistory';
+import { useChatHistory } from '@/hooks/useChatHistory';
 import { startLanggraphResearch } from '../components/Langgraph/Langgraph';
 import findDifferences from '../helpers/findDifferences';
 import { Data, ChatBoxSettings, QuestionData } from '../types/data';
@@ -47,7 +48,9 @@ export default function Home() {
     deleteResearch 
   } = useResearchHistory();
 
-  const { socket, initializeWebSocket } = useWebSocket(
+  const { saveChat } = useChatHistory();
+
+  const { socket, initializeWebSocket, sendChatMessage, chatHistory } = useWebSocket(
     setOrderedData,
     setAnswer,
     setLoading,
@@ -73,7 +76,10 @@ export default function Home() {
       const questionData: QuestionData = { type: 'question', content: message };
       setOrderedData(prevOrder => [...prevOrder, questionData]);
       
-      socket.send(`chat${JSON.stringify({ message })}`);
+      sendChatMessage(message);
+    } else {
+      // If no socket exists, initialize a new WebSocket connection
+      handleDisplayResult(message);
     }
   };
 
@@ -181,6 +187,14 @@ export default function Home() {
       }
     }
   }, [showResult, loading, answer, question, orderedData, history, saveResearch]);
+
+  // Save completed chat to history
+  useEffect(() => {
+    // Only save when chat is complete and not loading
+    if (showResult && !loading && answer && question && chatHistory.length > 0) {
+      saveChat(chatHistory);
+    }
+  }, [showResult, loading, answer, question, chatHistory, saveChat]);
 
   // Handle selecting a research from history
   const handleSelectResearch = (id: string) => {
